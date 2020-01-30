@@ -1,28 +1,67 @@
 import pyvisa
 
+rm = pyvisa.ResourceManager()
+ThorLabs = rm.open_resource("")
+Arroyo = rm.open_resource("")
+
 def getID():
     pass
 
-def turnOnLaser(LaserControler):
-    pass
+def turnOnLaser(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def turnOffLaser(LaserControler):
-    pass
+def turnOffLaser(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def setCurrent(current):
-    pass
+def setCurrent(current,LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def setTempurature(temperature):
-    pass
+def setTempurature(temperature, LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def getCurrent(LaserControler):
-    pass
+def getCurrent(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def getTemperature(LaserControler):
-    pass
+def getTemperature(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
-def getLaserStatus(LaserControler):
-    pass
+def getLaserStatus(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == "thor labs":
+        pass
+    else: 
+        print("Laser Controller doesn't exsist")
 
 
 
