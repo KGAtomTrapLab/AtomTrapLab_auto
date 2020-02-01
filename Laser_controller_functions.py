@@ -1,8 +1,20 @@
 import pyvisa
+from pyvisa import constants
+
+
+
 
 rm = pyvisa.ResourceManager()
-ThorLabs = rm.open_resource("")
-Arroyo = rm.open_resource("")
+
+Arroyo = rm.open_resource('ASRL3::INSTR', baud_rate = 38400, data_bits = 8)
+Arroyo.read_termination = '\r\n'
+Arroyo.write_termination = '\r\n'
+
+constants.VI_ASRL_STOP_ONE     
+constants.VI_ASRL_PAR_NONE
+constants.VI_ASRL_FLOW_NONE
+
+ThorLabs= rm.open_resource('GPIB0::10::INSTR')
 
 
 def getID():
@@ -79,7 +91,7 @@ def getLaserStatus(LaserController):
         response = response.split(" ")
         if response[1] == "OFF":
             return False
-        elif response[1] =="ON":
+        elif response[1] == "ON":
             return True
 
     else:
