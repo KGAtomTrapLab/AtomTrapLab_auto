@@ -1,4 +1,4 @@
-import Laser_controler_functions
+#import Laser_controler_functions
 import matplotlib
 import sys
 import os
@@ -39,7 +39,7 @@ def set_laser_values(current, temp, laserController):
 
 def run_labVIEW(Vmax, Vmin, sweepTime):
     os.chdir(
-        'C:\\Users\\kat\\Desktop\\builds\\"Ramp program 190127 JordanC"\\My Application2'
+        'C:\\Users\\kat\\Desktop\\builds\\Ramp program 190127 JordanC\\My Application2'
     )
 
     os.system(f"Application.exe -- {Vmax} {Vmin} {sweepTime}")
@@ -61,13 +61,17 @@ def read_exel():
     pass
 
 
+
+
+
 if __name__ == "__main__":
     name, current, temp, Vmax, Vmin, sweepTime, laserController = sys.argv
 
     # thresholdCurrent = find_threshold_current()
-    set_laser_values(current, temp, laserController)
-    run_labVIEW(Vmax, Vmin, sweepTime)
-    read_csv()
-    plot_graphs()
-    cursors_inputs()
-    transition = read_exel()
+    #set_laser_values(current,temp,laserController)
+    run_labVIEW(10,-10,20)
+    #read_csv()
+    #plot_graphs()
+    #cursors_inputs()
+    #transition = read_exel()
+  
