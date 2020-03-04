@@ -1,20 +1,20 @@
 import pyvisa
 from pyvisa import constants
+import time
 
-
-
-
+time_change = 0.45  # sec/mA
+currentResolution = 0.01
 rm = pyvisa.ResourceManager()
 
-Arroyo = rm.open_resource('ASRL3::INSTR', baud_rate = 38400, data_bits = 8)
-Arroyo.read_termination = '\r\n'
-Arroyo.write_termination = '\r\n'
+Arroyo = rm.open_resource("ASRL3::INSTR", baud_rate=38400, data_bits=8)
+Arroyo.read_termination = "\r\n"
+Arroyo.write_termination = "\r\n"
 
-constants.VI_ASRL_STOP_ONE     
+constants.VI_ASRL_STOP_ONE
 constants.VI_ASRL_PAR_NONE
 constants.VI_ASRL_FLOW_NONE
 
-ThorLabs= rm.open_resource('GPIB0::10::INSTR')
+ThorLabs = rm.open_resource("GPIB0::10::INSTR")
 
 
 def getID():
@@ -41,9 +41,28 @@ def turnOffLaser(LaserController):
 
 def setCurrent(current, LaserController):
     if LaserController.lower() == "arroyo":
-        pass
+        actualCurrent = getCurrent("arroyo")
+        while actualCurrent == current:
+            actualCurrent = getCurrent("arroyo")
+            difference = actualCurrent - current
+            if difference < 0:
+                LDI = current - currentResolution
+            else:
+                LDI = current + currentResolution
+            Arroyo.write(f"LASer:LDI {LDI}")
+            time.sleep(time_change * currentResolution)
+
     elif LaserController.lower() == "thor labs":
-        pass
+        actualCurrent = getCurrent("thor labs")
+        while actualCurrent == current:
+            actualCurrent = getCurrent("thor labs")
+            difference = actualCurrent - current
+            if difference < 0:
+                LDI = current - 0.001 * currentResolution  # Convert to mA
+            else:
+                LDI = current + 0.001 * currentResolution  # Convert to mA
+            ThorLabs.write(f":ILD:SET {LDI}")
+            time.sleep(time_change * currentResolution)
     else:
         print("Laser Controller doesn't exsist")
 
