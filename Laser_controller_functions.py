@@ -19,7 +19,13 @@ ThorLabs = rm.open_resource("GPIB0::10::INSTR")
 
 def getID():
     pass
-
+def Beep(LaserController):
+    if LaserController.lower() == "arroyo":
+        Arroyo.write('BEEP')
+    elif LaserController.lower() == "thor labs":
+        print(ThorLabs.query("*IDN?"))
+    else:
+        print("Laser Controller doesn't exsist")
 
 def turnOnLaser(LaserController):
     if LaserController.lower() == "arroyo":
@@ -41,26 +47,31 @@ def turnOffLaser(LaserController):
 
 def setCurrent(current, LaserController):
     if LaserController.lower() == "arroyo":
-        actualCurrent = getCurrent("arroyo")
-        while actualCurrent == current:
-            actualCurrent = getCurrent("arroyo")
+        print("pass")
+        actualCurrent = float(getCurrent("arroyo"))
+        print(actualCurrent)
+        while actualCurrent >=current+currentResolution or actualCurrent<=current-currentResolution:
+            
+            actualCurrent = float(getCurrent("arroyo"))
             difference = actualCurrent - current
             if difference < 0:
                 LDI = current - currentResolution
             else:
                 LDI = current + currentResolution
+            print(LDI)
             Arroyo.write(f"LASer:LDI {LDI}")
             time.sleep(time_change * currentResolution)
 
     elif LaserController.lower() == "thor labs":
         actualCurrent = getCurrent("thor labs")
-        while actualCurrent == current:
+        while actualCurrent != current:
             actualCurrent = getCurrent("thor labs")
             difference = actualCurrent - current
             if difference < 0:
-                LDI = current - 0.001 * currentResolution  # Convert to mA
+                LDI = current -   currentResolution  
             else:
-                LDI = current + 0.001 * currentResolution  # Convert to mA
+                LDI = current +  currentResolution  
+            LDI = LDI*0.001
             ThorLabs.write(f":ILD:SET {LDI}")
             time.sleep(time_change * currentResolution)
     else:
@@ -78,10 +89,10 @@ def setTempurature(temperature, LaserController):
 
 def getCurrent(LaserController):
     if LaserController.lower() == "arroyo":
-        current = Arroyo.querry("LASer:LDI?")
+        current = Arroyo.query("LASer:LDI?")
         return current
     elif LaserController.lower() == "thor labs":
-        current = ThorLabs.querry(":ILD:ACT?")
+        current = ThorLabs.query(":ILD:ACT?")
         current = current.split(" ")
         return current[1]
     else:
