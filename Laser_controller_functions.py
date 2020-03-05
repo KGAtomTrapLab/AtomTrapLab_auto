@@ -19,13 +19,16 @@ ThorLabs = rm.open_resource("GPIB0::10::INSTR")
 
 def getID():
     pass
+
+
 def Beep(LaserController):
     if LaserController.lower() == "arroyo":
-        Arroyo.write('BEEP')
+        Arroyo.write("BEEP")
     elif LaserController.lower() == "thor labs":
         print(ThorLabs.query("*IDN?"))
     else:
         print("Laser Controller doesn't exsist")
+
 
 def turnOnLaser(LaserController):
     if LaserController.lower() == "arroyo":
@@ -47,11 +50,12 @@ def turnOffLaser(LaserController):
 
 def setCurrent(current, LaserController):
     if LaserController.lower() == "arroyo":
-        print("pass")
         actualCurrent = float(getCurrent("arroyo"))
-        print(actualCurrent)
-        while actualCurrent >=current+currentResolution or actualCurrent<=current-currentResolution:
-            
+        while (
+            actualCurrent >= current + currentResolution
+            or actualCurrent <= current - currentResolution
+        ):
+
             actualCurrent = float(getCurrent("arroyo"))
             difference = actualCurrent - current
             if difference < 0:
@@ -63,15 +67,18 @@ def setCurrent(current, LaserController):
             time.sleep(time_change * currentResolution)
 
     elif LaserController.lower() == "thor labs":
-        actualCurrent = getCurrent("thor labs")
-        while actualCurrent != current:
-            actualCurrent = getCurrent("thor labs")
+        actualCurrent = float(getCurrent("thor labs"))
+        while (
+            actualCurrent >= current + currentResolution
+            or actualCurrent <= current - currentResolution
+        ):
+            actualCurrent = float(getCurrent("thor labs"))
             difference = actualCurrent - current
             if difference < 0:
-                LDI = current -   currentResolution  
+                LDI = current - currentResolution
             else:
-                LDI = current +  currentResolution  
-            LDI = LDI*0.001
+                LDI = current + currentResolution
+            LDI = LDI * 0.001
             ThorLabs.write(f":ILD:SET {LDI}")
             time.sleep(time_change * currentResolution)
     else:
