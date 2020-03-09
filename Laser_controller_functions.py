@@ -32,18 +32,18 @@ def Beep(LaserController):
 
 def turnOnLaser(LaserController):
     if LaserController.lower() == "arroyo":
-        pass
+        Arroyo.write("LASer:OUTput 1")
     elif LaserController.lower() == "thor labs":
-        pass
+        ThorLabs.write(":LASER ON")
     else:
         print("Laser Controller doesn't exsist")
 
 
 def turnOffLaser(LaserController):
     if LaserController.lower() == "arroyo":
-        pass
+        Arroyo.write("LASer:OUTput 0")
     elif LaserController.lower() == "thor labs":
-        pass
+        ThorLabs.write(":LASER OFF")
     else:
         print("Laser Controller doesn't exsist")
 
