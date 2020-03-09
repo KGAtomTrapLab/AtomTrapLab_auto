@@ -78,10 +78,10 @@ def setTempurature(temperature, LaserController):
 
 def getCurrent(LaserController):
     if LaserController.lower() == "arroyo":
-        current = Arroyo.querry("LASer:LDI?")
+        current = Arroyo.query("LASer:LDI?")
         return current
     elif LaserController.lower() == "thor labs":
-        current = ThorLabs.querry(":ILD:ACT?")
+        current = ThorLabs.query(":ILD:ACT?")
         current = current.split(" ")
         return current[1]
     else:
@@ -99,14 +99,14 @@ def getTemperature(LaserController):
 
 def getLaserStatus(LaserController):
     if LaserController.lower() == "arroyo":
-        response = Arroyo.querry("LASer:OUTput?")
+        response = Arroyo.query("LASer:OUTput?")
         if response == 1:
             return True
         elif response == 0:
             return False
 
     elif LaserController.lower() == "thor labs":
-        response = ThorLabs.querry(":LASER?")
+        response = ThorLabs.query(":LASER?")
         response = response.split(" ")
         if response[1] == "OFF":
             return False
