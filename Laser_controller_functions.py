@@ -4,6 +4,7 @@ import time
 
 time_change = 0.45  # sec/mA
 currentResolution = 0.01
+tempResolution = 1
 rm = pyvisa.ResourceManager()
 
 Arroyo = rm.open_resource("ASRL3::INSTR", baud_rate=38400, data_bits=8)
@@ -25,9 +26,9 @@ def beep(LaserController):
     if LaserController.lower() == "arroyo":
         Arroyo.write("*BEEP")
     elif LaserController.lower() == "thor labs":
-        ThorLabs.write("*IDN?")
+        ThorLabs.query("*IDN?")
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 def turnOnLaser(LaserController):
@@ -36,7 +37,7 @@ def turnOnLaser(LaserController):
     elif LaserController.lower() == "thor labs":
         ThorLabs.write(":LASER ON")
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 def turnOffLaser(LaserController):
@@ -45,8 +46,36 @@ def turnOffLaser(LaserController):
     elif LaserController.lower() == "thor labs":
         ThorLabs.write(":LASER OFF")
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
+def turnOnTemp(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == 'thor labs':
+        ThorLabs.write(":TEC ON")
+    else: 
+        print("Laser Controller doesn't exist")
+
+def turnOffTemp(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == 'thor labs':
+        ThorLabs.write(":TEC OFF")
+    else: 
+        print("Laser Controller doesn't exist")
+
+def getTempStatus(LaserController):
+    if LaserController.lower() == 'arroyo':
+        pass
+    elif LaserController.lower() == 'thor labs':
+        state = ThorLabs.write(":TEC?")
+        state = state.split(' ')
+        if state[1].rstrip() == "OFF":
+            return False
+        else:
+            return True
+    else: 
+        print("Laser Controller doesn't exist")
 
 def setCurrent(current, LaserController):
     if LaserController.lower() == "arroyo":
@@ -64,7 +93,7 @@ def setCurrent(current, LaserController):
 
     elif LaserController.lower() == "thor labs":
         actualCurrent = float(getCurrent("thor labs"))
-        while actualCurrent != 0.001 * current:
+        while not((actualCurrent <= 0.001 * current + 0.0001*currentResolution) and (actualCurrent >= 0.001 * current - 0.0001*currentResolution)):
             actualCurrent = float(getCurrent("thor labs"))
             difference = 0.001 * current - actualCurrent
             if difference < 0:
@@ -75,39 +104,60 @@ def setCurrent(current, LaserController):
             actualCurrent = float(getCurrent("thor labs"))
             time.sleep(time_change * currentResolution)
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
-
+# Using the setCurrent as a model for set Temperature
 def setTempurature(temperature, LaserController):
     if LaserController.lower() == "arroyo":
-        pass
+        actualTemp = float(getTemperature("arroyo"))
+        while actualTemp != temperature:
+            actualTemp = float(getTemperature("arroyo"))
+            difference = temperature - actualTemp
+            if difference < 0:
+                LDI = actualTemp - 10 * tempResolution
+            else:
+                LDI = actualTemp + 10 * tempResolution
+            #Arroyo.write(f"LASer:LDI {LDI}")
+            actualTemp = float(getTemperature("arroyo"))
+            time.sleep(time_change * 10 * tempResolution)
+
     elif LaserController.lower() == "thor labs":
-        pass
+        actualTemp = float(getTemperature("thor labs"))
+        while not((actualTemp <= 0.001 * temperature + 0.0001*tempResolution) and (actualTemp >= 0.001 * temperature - 0.0001*tempResolution)):
+            actualTemp = float(getTemperature("thor labs"))
+            difference = 0.001 * temperature - actualTemp
+            if difference < 0:
+                NR3 = actualTemp -   tempResolution  # Convert to mA
+            else:
+                NR3 = actualTemp + tempResolution  # Convert to mA
+            ThorLabs.write(f":RESI:SET {NR3}")
+            actualTemp = float(getTemperature("thor labs"))
+            time.sleep(time_change * tempResolution)
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 def getCurrent(LaserController):
     if LaserController.lower() == "arroyo":
         current = Arroyo.query("LASer:SET:LDI?")
-        return current
+        return float(current)
     elif LaserController.lower() == "thor labs":
-        current = ThorLabs.query(":ILD:ACT?")
+        current = ThorLabs.query(":ILD:SET?")
         current = current.split(" ")
-        return current[1]
+        return float(current[1].rstrip())
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 def getTemperature(LaserController):
     if LaserController.lower() == "arroyo":
         pass
     elif LaserController.lower() == "thor labs":
-        # Use :SENS?
-        # TEMP ACT
-        pass
+        temp = ThorLabs.query(":RESI:ACT?")
+        temp = temp.split(' ')
+        return float(temp[1].rstrip())
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 def getLaserStatus(LaserController):
@@ -121,13 +171,13 @@ def getLaserStatus(LaserController):
     elif LaserController.lower() == "thor labs":
         response = ThorLabs.query(":LASER?")
         response = response.split(" ")
-        if response[1] == "OFF":
+        if response[1].rstrip() == "OFF":
             return False
-        elif response[1] == "ON":
+        elif response[1].rstrip() == "ON":
             return True
 
     else:
-        print("Laser Controller doesn't exsist")
+        print("Laser Controller doesn't exist")
 
 
 if __name__ == "__main__":
