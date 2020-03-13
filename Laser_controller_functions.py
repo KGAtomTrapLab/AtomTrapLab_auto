@@ -20,6 +20,7 @@ ThorLabs = rm.open_resource("GPIB0::10::INSTR")
 def getID():
     pass
 
+
 def beep(LaserController):
     if LaserController.lower() == "arroyo":
         Arroyo.write("*BEEP")
@@ -27,6 +28,7 @@ def beep(LaserController):
         ThorLabs.write("*IDN?")
     else:
         print("Laser Controller doesn't exsist")
+
 
 def turnOnLaser(LaserController):
     if LaserController.lower() == "arroyo":
@@ -51,27 +53,26 @@ def setCurrent(current, LaserController):
         actualCurrent = float(getCurrent("arroyo"))
         while actualCurrent != current:
             actualCurrent = float(getCurrent("arroyo"))
-            difference = current-actualCurrent
+            difference = current - actualCurrent
             if difference < 0:
-                LDI = actualCurrent - 10*currentResolution
+                LDI = actualCurrent - 10 * currentResolution
             else:
-                LDI = actualCurrent + 10*currentResolution
+                LDI = actualCurrent + 10 * currentResolution
             Arroyo.write(f"LASer:LDI {LDI}")
             actualCurrent = float(getCurrent("arroyo"))
-            time.sleep(time_change * 10*currentResolution)
+            time.sleep(time_change * 10 * currentResolution)
 
     elif LaserController.lower() == "thor labs":
         actualCurrent = float(getCurrent("thor labs"))
-        while actualCurrent != current:
+        while actualCurrent != 0.001 * current:
             actualCurrent = float(getCurrent("thor labs"))
-            difference = current-actualCurrent
+            difference = 0.001 * current - actualCurrent
             if difference < 0:
                 LDI = actualCurrent - 0.001 * currentResolution  # Convert to mA
             else:
                 LDI = actualCurrent + 0.001 * currentResolution  # Convert to mA
             ThorLabs.write(f":ILD:SET {LDI}")
             actualCurrent = float(getCurrent("thor labs"))
-
             time.sleep(time_change * currentResolution)
     else:
         print("Laser Controller doesn't exsist")
@@ -102,6 +103,8 @@ def getTemperature(LaserController):
     if LaserController.lower() == "arroyo":
         pass
     elif LaserController.lower() == "thor labs":
+        # Use :SENS?
+        # TEMP ACT
         pass
     else:
         print("Laser Controller doesn't exsist")
