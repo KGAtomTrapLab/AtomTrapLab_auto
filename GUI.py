@@ -1,40 +1,39 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import (
+    QApplication,
+    QWidget,
+    QLabel,
+    QPushButton,
+    QMainWindow,
+    QLineEdit,
+)
 from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import pyqtSlot
 
 
-def window():
-    app = QApplication(sys.argv)
-    widget = QWidget()
+class Example(QMainWindow):
+    def __init__(self):
+        super().__init__()
 
-    textLabel = QLabel(widget)
-    textLabel.setText("Hello World")
-    textLabel.move(220, 85)
+        self.lineEntry = QLineEdit(self)
+        self.lineEntry.move(16, 16)
+        self.lineEntry.resize(200, 40)
 
-    button1 = QPushButton(widget)
-    button1.setText("Button1")
-    button1.move(64, 32)
-    button1.clicked.connect(button1_clicked)
+        self.qlabel = QLabel(self)
+        self.qlabel.move(16, 64)
 
-    button2 = QPushButton(widget)
-    button2.setText("Button2")
-    button2.move(64, 64)
-    button2.clicked.connect(button2_clicked)
+        self.lineEntry.textChanged.connect(self.onChanged)
 
-    widget.setGeometry(50, 50, 320, 200)
-    widget.setWindowTitle("PyQt5 Example")
-    widget.show()
-    sys.exit(app.exec_())
+        self.setGeometry(50, 50, 320, 200)
+        self.setWindowTitle("QLineEdit Example")
+        self.show()
 
-
-def button1_clicked():
-    print("Button 1 clicked")
-
-
-def button2_clicked():
-    print("Button 2 clicked")
+    def onChanged(self, text):
+        self.qlabel.setText(text)
+        self.qlabel.adjustSize()
 
 
 if __name__ == "__main__":
-    window()
+    app = QApplication(sys.argv)
+    ex = Example()
+    sys.exit(app.exec_())
