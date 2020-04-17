@@ -1,2 +1,2 @@
-# IonTrapLab_auto
+# AtomTrapLab_auto
 Automatization project for Dr.Gillen's lab
