@@ -4,39 +4,47 @@ from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
 
+# Import Data
+df = pd.read_csv("testScan.txt", header=None, sep='\t')
+df.columns = ['Saturated Absorption','NA', 'Error', 'NaN', 'Voltage']
+for i in range(3):
+    df['Saturated Absorption'][i] = 0
+# x = [-.361, -.094, 0.012, 0.08, .236, .378]
+# y = [1, 2, 3, 3.1, 4.2, .9]
+y = df['Saturated Absorption']
+err = df['Error']
+###########################################################################
+# CURSORS
+
 # Mouse click function to store coordinates
 def storeclick(event):
     global ix, iy
-    ix, iy = event.xdata, event.ydata
+    ix, iy = int(round(event.xdata)), event.ydata
 
-    print('x = %.5f, y = %.5f'%(ix, iy))
+    print('x = %.2f, y = %.2f'%(ix, iy))
 
-    global coords
-    coords.append((ix, iy))
+    global raw_coords
+    raw_coords.append((ix, iy))
 
     # 6 clicks
-    if len(coords) == 6:
+    if len(raw_coords) == 6:
         fig.canvas.mpl_disconnect(cid)
         plt.close()
     return
 
-#x = np.arange(0,4*np.pi,.1)
-#y = np.sin(x)
-x = [-.361, -.094, 0.012, 0.08, .236, .378]
-y = [1, 2, 3, 3.1, 4.2, .9]
-
 fig = plt.figure()
 ax = fig.add_subplot()
-ax.scatter(x,y)
-ax.plot(x,y)
+ax.plot(y)
+# ax.set_xlim([-7.5,5])
 
-coords = []
+raw_coords = []
 
 # Call click function
 cid = fig.canvas.mpl_connect('button_press_event', storeclick)
 cursor = Cursor(ax, useblit=True, color='r', linewidth=1.7, linestyle='--')
 
 plt.show()
+###########################################################################
 
 # Fabry Perot:
 # Difference = 
@@ -45,11 +53,18 @@ plt.show()
 
 conv = 539.57 # Conversion from Fabry Perot (MHZ/V)
 
+# Convert raw x-coords to voltage values
+coords = []
+
+for i in raw_coords:
+    r = df.at[i[0],'Voltage']
+    coords.append(r)
+
 # x-axis difference before conversion
 n = 0
 c = [] 
 for i in coords:
-    j = i[0] - coords[0][0]
+    j = i - coords[0]
     c.append(j)
 
 # Difference after conversion (MHz/V)
@@ -72,7 +87,7 @@ Rb85 = np.array([0,31.5,46,63,77.5,92])
 Rb87t_perc = []
 for i in range(1, 6):
     R1 = (abs(d[i]-Rb87t[i])/(Rb87t[i]))*100
-    Rb87t_perc.append(R1)
+    Rb87t_perc.append(R1) 
 
 # % Difference from transition - Rb87 pump
 Rb87p_perc = []
@@ -129,7 +144,7 @@ for i in range(0, 5):
     R4 = (abs(interval[i]-(Rb85[i+1]-Rb85[i]))/(Rb85[i+1]-Rb85[i]))*100
     Rb85_pint.append(R4)
 
-
+#####################################################################
 # Percentage Heat Map (difference from transition)
 index= ['Peak 2', 'Peak 3', 'Peak 4', 'Peak 5', 'Peak 6']
 percentile_list = pd.DataFrame(
@@ -154,4 +169,14 @@ print(percentile_list2)
 sns.heatmap(percentile_list2, cmap = 'ocean', annot = True)
 plt.show()
 
-
+#######################################################################
+# Error Signal Value
+Error = 0
+while Error = 0:
+    g = raw_input('Trap Transition? ')
+    if g == str('y'):
+        Error = df.at[raw_coords[0][0],'Error'] #- q       # q index conversion in MHz (~10Mhz)
+    elif g == str('n'):
+        Error = df.at[raw_coords[0][0],'Error']
+    else:
+        Error = 0
