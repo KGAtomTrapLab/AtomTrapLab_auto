@@ -47,11 +47,12 @@ plt.show()
 ###########################################################################
 
 # Fabry Perot:
-# Difference = 
-# 300/Difference = conv     # 300MHz FSR
-# q = (Difference/300)*10   # 10MHz conversion for trap transition
+    '''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''
+    # Difference = fp_data[i+1]-fp_data[i]
+    # 300/Difference = conv     # 300MHz FSR, (MHz/V)
+    # q = (Difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
 
-conv = 539.57 # Conversion from Fabry Perot (MHZ/V)
+conv = 539.57 # Conversion from Fabry Perot (MHZ/V) - example data
 
 # Convert raw x-coords to voltage values
 coords = []
@@ -61,19 +62,19 @@ for i in raw_coords:
     coords.append(r)
 
 # x-axis difference before conversion
-n = 0
 c = [] 
 for i in coords:
     j = i - coords[0]
     c.append(j)
 
-# Difference after conversion (MHz/V)
-d = []
+
+d = []      # Difference after conversion (MHz/V)
 for i in c:
      dd = i*conv
      d.append(dd)
+print(d)
 
-# Known Values
+# Known Values (MHz)
 # Rubidium 87 Trap Transition
 Rb87t = np.array([0,133.5,212,267,345.5,424])
 # Rubidium 87 Pump
@@ -83,6 +84,9 @@ Rb85t = np.array([0,60.5,92,121,152.5,184])
 # Rubidium 85 (4)
 Rb85 = np.array([0,31.5,46,63,77.5,92])
 
+# Add zeroes to array until 'full'
+while len(d) < 6:
+    d.append(0)
 # % Difference from transition - Rb 87 Trap
 Rb87t_perc = []
 for i in range(1, 6):
@@ -101,7 +105,7 @@ for i in range(1, 6):
     R3 = (abs(d[i]-Rb85t[i])/(Rb85t[i]))*100
     Rb85t_perc.append(R3)
 
-# % Difference from transition - Rb85 (2)
+# % Difference from transition - Rb85 (4)
 Rb85_perc = []
 for i in range(1, 6):
     R4 = (abs(d[i]-Rb85[i])/(Rb85[i]))*100
@@ -112,7 +116,7 @@ interval = []
 for i in range(1, 6):
     k = d[i]-d[i-1]
     if k<0:
-        print("Cursor interval c[i]-c[i-1] is not in increasing order.")
+        print('Cursor interval c[%f]-c[%f-1] is not in increasing order.'%(i,i))
         break
     else:
         interval.append(k)
@@ -171,12 +175,12 @@ plt.show()
 
 #######################################################################
 # Error Signal Value
-Error = 0
-while Error = 0:
-    g = raw_input('Trap Transition? ')
-    if g == str('y'):
-        Error = df.at[raw_coords[0][0],'Error'] #- q       # q index conversion in MHz (~10Mhz)
-    elif g == str('n'):
-        Error = df.at[raw_coords[0][0],'Error']
-    else:
-        Error = 0
+# Error = 0
+# while Error == 0:
+#     g = raw_input('Trap Transition? ')
+#     if g == str('y'):
+#         Error = df.at[raw_coords[0][0],'Error'] #- q       # q index conversion in MHz (~10Mhz to the left)
+#     elif g == str('n'):
+#         Error = df.at[raw_coords[0][0],'Error']
+#     else:
+#         Error = 0
