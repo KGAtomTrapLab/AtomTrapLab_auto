@@ -3,19 +3,25 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
+from scipy.signal import find_peaks_cwt
 
-def fabry_perot_conversions(fp_data):
+def fabry_perot_conversions(fp_data,df):
     '''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''
-    Difference = fp_data[i+1]-fp_data[i]
-    conv = 300/Difference   # 300MHz FSR, (MHz/V)
-    q = (Difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
+    peaks = find_peaks_cwt(fp_data, np.arange(100,120))
+    fp_peaks =[]
+    for i in peaks:
+        j = df.at[i,"Voltage"]
+        fp_peaks.append(j)
+    difference = fp_peaks[1] - fp_peaks[0]
+    conv = 300/difference   # 300MHz FSR, (MHz/V)
+    q = (difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
     return conv, q
 
 def raw_to_frequency_coords(raw_coords,conv,df):
     '''Convert raw coordinates to corresponding voltage values in dataframe. Outputs voltage of each peak, from raw input.'''
     coords = []       
     for i in raw_coords:
-        r = df.at[i[0],'Voltage']
+        r = df.at[i,'Voltage']
         coords.append(r)
     c = []      # x-axis difference before conversion
     for i in coords:
@@ -43,7 +49,7 @@ def frequency_percent_difference(peak_freq):
     Rb85t = np.array([0,60.5,92,121,152.5,184])     # Rubidium 85 (2) (MHz)
     Rb85 = np.array([0,31.5,46,63,77.5,92])         # Rubidium 85 (4) (MHz)
     while len(peak_freq) < 6: # Add zeroes to array until 'full.' 
-        peak_freq.append(0)
+        peak_freq.append((peak_freq[-1]+1))
     Rb87t_perc = []             # % Difference from transition - Rb 87 Trap
     for i in range(1, 6):
         R1 = (abs(peak_freq[i]-Rb87t[i])/(Rb87t[i]))*100
@@ -60,14 +66,14 @@ def frequency_percent_difference(peak_freq):
     for i in range(1, 6):
         R4 = (abs(peak_freq[i]-Rb85[i])/(Rb85[i]))*100
         Rb85_perc.append(R4)
-    return Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc
+    return peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc
 
 def frequency_intervals(peak_freq):
     '''Outputs the frequency interval between peaks. If the the input peaks are not in increasing order, the loop breaks. There are two outputs. First (interval) is in the form of a list, the second, interval_col is the same data as a dataframe column.'''
-    interval = []      
+    interval = []    
     for i in range(1, 6):
         k = peak_freq[i]-peak_freq[i-1]
-        if k<0:
+        if k <= 0:
             print('Peak interval of indices,(%.1f) - (%.1f) is not in increasing order.'%(i,i-1)) 
             break
         else:
@@ -106,19 +112,19 @@ def lowest_perc_diff(Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc,Rb87t_pint, R
     Rb85t = (Rb85t_perc)+(Rb85t_pint)
     Rb85 = (Rb85_perc)+(Rb85_pint)
     transition = 0
-    if Rb87t<Rb87p and Rb87t<Rb85t and Rb87t<Rb85:
+    if (Rb87t<Rb87p) and (Rb87t<Rb85t) and (Rb87t<Rb85):
         print("Rb87 Trap Transition")
         transition = 1
         return transition
-    elif Rb87p<Rb87t and Rb87p<Rb85t and Rb87p<Rb85:
+    elif (Rb87p<Rb87t) and (Rb87p<Rb85t) and (Rb87p<Rb85):
         print("Rb87 Pump Transition")
         transition = 2
         return transition
-    elif Rb85t<Rb87t and Rb85t<Rb87p and Rb85t<Rb85:
+    elif (Rb85t<Rb87t) and (Rb85t<Rb87p) and (Rb85t<Rb85):
         print("Rb85(2) Transition")
         transition = 3
         return transition
-    elif Rb85<Rb87t and Rb85<Rb87p and Rb85<Rb85t:
+    elif (Rb85<Rb87t) and (Rb85<Rb87p) and (Rb85<Rb85t):
         print("Rb85(2) Transition")
         transition = 4
         return transition
@@ -135,11 +141,11 @@ def error_val(transition,raw_coords,df,q):
         if trap transition, outputs the error signal value shifted left by ~10MHz voltage conversion, from fabry perot.
     '''
     #q is 10MHz conversion for trap transition, in units of voltage.
-    print(raw_coords)
     if transition == 1:
-        error = df.at[raw_coords[0][0],'Error'] - q  # q from fabry perot conversion function
+        print("Trap Transition")
+        error = df.at[raw_coords[0],'Error'] - q  # q from fabry perot conversion function
     else:
-        error = df.at[raw_coords[0][0],'Error']
+        error = df.at[raw_coords[0],'Error']
     return error
     
 
@@ -153,7 +159,9 @@ def percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc):
          'Rb85 (4)': Rb85_perc
         }, index = index)
     print(percentile_list)
-    sns.heatmap(percentile_list, cmap = 'ocean', annot = True)
+    ax = plt.axes()
+    sns.heatmap(percentile_list, cmap = 'ocean', annot = True, ax = ax)
+    ax.set_title('Peaks')    
     plt.show()
 
 def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
@@ -166,7 +174,9 @@ def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
          'Rb85 (4)': Rb85_pint
         }, index = index)
     print(percentile_list2)
-    sns.heatmap(percentile_list2, cmap = 'ocean', annot = True)
+    ax = plt.axes()
+    sns.heatmap(percentile_list2, cmap = 'ocean', annot = True, ax = ax)
+    ax.set_title('Intervals')
     plt.show()
 
 
