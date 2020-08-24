@@ -4,6 +4,11 @@ from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
 
+'''
+PROOF OF CONCEPT
+    Cursors and Excel Implementation
+'''
+
 # Import Data
 df = pd.read_csv("testScan.txt", header=None, sep='\t')
 df.columns = ['Saturated Absorption','NA', 'Error', 'NaN', 'Voltage']
@@ -42,7 +47,7 @@ cid = fig.canvas.mpl_connect('button_press_event', storeclick)
 cursor = Cursor(ax, useblit=True, color='r', linewidth=1.7, linestyle='--')
 
 plt.show()
-###########################################################################
+#%%
 
 # Fabry Perot:
 '''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''

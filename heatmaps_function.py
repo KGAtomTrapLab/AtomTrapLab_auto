@@ -7,7 +7,7 @@ from scipy.signal import find_peaks_cwt
 
 def fabry_perot_conversions(fp_data,df):
     '''
-    Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. 
+    Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
     Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
     '''
     peaks = find_peaks_cwt(fp_data, np.arange(100,120))
