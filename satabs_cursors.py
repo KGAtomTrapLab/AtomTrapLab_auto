@@ -4,15 +4,17 @@ from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
 
+'''
+PROOF OF CONCEPT
+    Cursors and Excel Implementation
+'''
+
 # Import Data
 df = pd.read_csv("testScan.txt", header=None, sep='\t')
 df.columns = ['Saturated Absorption','NA', 'Error', 'NaN', 'Voltage']
 for i in range(3):
     df['Saturated Absorption'][i] = 0
-# x = [-.361, -.094, 0.012, 0.08, .236, .378]
-# y = [1, 2, 3, 3.1, 4.2, .9]
-y = df['Saturated Absorption']
-err = df['Error']
+
 ###########################################################################
 # CURSORS
 
@@ -32,6 +34,7 @@ def storeclick(event):
         plt.close()
     return
 
+y = df['Saturated Absorption']
 fig = plt.figure()
 ax = fig.add_subplot()
 ax.plot(y)
@@ -44,16 +47,16 @@ cid = fig.canvas.mpl_connect('button_press_event', storeclick)
 cursor = Cursor(ax, useblit=True, color='r', linewidth=1.7, linestyle='--')
 
 plt.show()
-###########################################################################
+#%%
 
 # Fabry Perot:
-    '''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''
+'''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''
     # Difference = fp_data[i+1]-fp_data[i]
     # 300/Difference = conv     # 300MHz FSR, (MHz/V)
     # q = (Difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
-
+q = .026 #example data
 conv = 539.57 # Conversion from Fabry Perot (MHZ/V) - example data
-
+print(raw_coords)
 # Convert raw x-coords to voltage values
 coords = []
 
@@ -116,7 +119,7 @@ interval = []
 for i in range(1, 6):
     k = d[i]-d[i-1]
     if k<0:
-        print('Cursor interval c[%f]-c[%f-1] is not in increasing order.'%(i,i))
+        print('Peak interval of indices,(%.1f) - (%.1f) is not in increasing order.'%(i,i-1))
         break
     else:
         interval.append(k)
@@ -175,12 +178,27 @@ plt.show()
 
 #######################################################################
 # Error Signal Value
-# Error = 0
-# while Error == 0:
-#     g = raw_input('Trap Transition? ')
-#     if g == str('y'):
-#         Error = df.at[raw_coords[0][0],'Error'] #- q       # q index conversion in MHz (~10Mhz to the left)
-#     elif g == str('n'):
-#         Error = df.at[raw_coords[0][0],'Error']
-#     else:
-#         Error = 0
+Rb87t_sum = (Rb87t_perc)+(Rb87t_pint)
+Rb87p_sum = (Rb87p_perc)+(Rb87p_pint)
+Rb85t_sum = (Rb85t_perc)+(Rb85t_pint)
+Rb85_sum = (Rb85_perc)+(Rb85_pint)
+if Rb87t_sum<Rb87p_sum and Rb87t_sum<Rb85t_sum and Rb87t_sum<Rb85_sum:
+    print("Rb87 Trap Transition")
+    transition = 1
+elif Rb87p_sum<Rb87t_sum and Rb87p_sum<Rb85t_sum and Rb87p_sum<Rb85_sum:
+    print("Rb87 Pump Transition")
+    transition = 2
+elif Rb85t_sum<Rb87t_sum and Rb87p_sum<Rb87p_sum and Rb85t_sum<Rb85_sum:
+    print("Rb85 TRAP Transition")
+    transition = 3
+elif Rb85_sum<Rb87t_sum and Rb87p_sum<Rb87p_sum and Rb85t_sum<Rb85t_sum:
+    print("Rb85 Pump Transition")
+    transiton = 4
+else:
+    print('Lowest percent difference amongst input data was not found')
+#q is 10MHz conversion for trap transition, in units of voltage.
+if transition == 1:
+    error = df.at[raw_coords[0][0],'Error'] - q  # q from fabry perot conversion function
+else:
+    error = df.at[raw_coords[0][0],'Error']
+print(error)

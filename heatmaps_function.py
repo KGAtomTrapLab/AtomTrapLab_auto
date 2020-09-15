@@ -3,19 +3,31 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
+from scipy.signal import find_peaks_cwt
 
-def fabry_perot_conversions(fp_data):
-    '''Takes fabry perot data, finds free spectral range and converts the fsr from voltage to MHz/V. Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.'''
-    # Difference = fp_data[i+1]-fp_data[i]
-    # 300/Difference = conv     # 300MHz FSR, (MHz/V)
-    # q = (Difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
-    #return conv, q
+def fabry_perot_conversions(fp_data,df):
+    '''
+    Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
+    Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
+    '''
+    peaks = find_peaks_cwt(fp_data, np.arange(100,120))
+    fp_peaks =[]
+    for i in peaks:
+        j = df.at[i,"Voltage"]
+        fp_peaks.append(j)
+    difference = fp_peaks[1] - fp_peaks[0]
+    conv = 300/difference   # 300MHz FSR, (MHz/V)
+    q = (difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
+    return conv, q
 
 def raw_to_frequency_coords(raw_coords,conv,df):
-    '''Convert raw coordinates to corresponding voltage values in dataframe. Outputs voltage of each peak, from raw input.'''
+    '''
+    Convert raw coordinates to corresponding voltage values in dataframe. Outputs 
+    voltage of each peak, from raw input.
+    '''
     coords = []       
     for i in raw_coords:
-        r = df.at[i[0],'Voltage']
+        r = df.at[i,'Voltage']
         coords.append(r)
     c = []      # x-axis difference before conversion
     for i in coords:
@@ -36,13 +48,16 @@ def raw_to_frequency_coords(raw_coords,conv,df):
 #     Rb85 = np.array([0,31.5,46,63,77.5,92])         # Rubidium 85 (4) (MHz)
 
 def frequency_percent_difference(peak_freq):
-'''Ouputs frequency data percent difference corresponding to the known values of the respective peaks. With first peak at 'zero' '''
+    '''
+    Ouputs frequency data percent difference corresponding to the known values of the respective peaks. 
+    With first peak at zero.
+    '''
     Rb87t = np.array([0,133.5,212,267,345.5,424])   # Rubidium 87 Trap Transition (MHz)
     Rb87p = np.array([0,78.5,114.5,157,193,229])    # Rubidium 87 Pump (MHz)
     Rb85t = np.array([0,60.5,92,121,152.5,184])     # Rubidium 85 (2) (MHz)
     Rb85 = np.array([0,31.5,46,63,77.5,92])         # Rubidium 85 (4) (MHz)
     while len(peak_freq) < 6: # Add zeroes to array until 'full.' 
-        peak_freq.append(0)
+        peak_freq.append((peak_freq[-1]+1))
     Rb87t_perc = []             # % Difference from transition - Rb 87 Trap
     for i in range(1, 6):
         R1 = (abs(peak_freq[i]-Rb87t[i])/(Rb87t[i]))*100
@@ -59,22 +74,30 @@ def frequency_percent_difference(peak_freq):
     for i in range(1, 6):
         R4 = (abs(peak_freq[i]-Rb85[i])/(Rb85[i]))*100
         Rb85_perc.append(R4)
-    return RB87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc
+    return peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc
 
 def frequency_intervals(peak_freq):
-'''Outputs the frequency interval between peaks. If the the input peaks are not in increasing order, the loop breaks. There are two outputs. First (interval) is in the form of a list, the second, interval_col is the same data as a dataframe column.'''
-    interval = []      
+    '''
+    Outputs the frequency interval between peaks. If the the input peaks are not in increasing order, 
+    the loop breaks. There are two outputs. First (interval) is in the form of a list, the second, 
+    interval_col is the same data as a dataframe column.
+    '''
+    interval = []    
     for i in range(1, 6):
         k = peak_freq[i]-peak_freq[i-1]
-        if k<0:
-            print('Cursor interval c[%f]-c[%f-1] is not in increasing order.'%(i,i)) 
+        if k <= 0:
+            print('Peak interval of indices,(%.1f) - (%.1f) is not in increasing order.'%(i,i-1)) 
             break
         else:
             interval.append(k)
     interval_col = pd.DataFrame({'Intervals': interval})
+    return interval
 
 def interval_percent_difference(interval):
-'''Outputs the data intervals between peaks percent difference with respect to the known data values.'''
+    '''
+    Outputs the data intervals between peaks percent difference with respect to the known data values.
+    
+    '''
     Rb87t = np.array([0,133.5,212,267,345.5,424])   # Rubidium 87 Trap Transition (MHz)
     Rb87p = np.array([0,78.5,114.5,157,193,229])    # Rubidium 87 Pump (MHz)
     Rb85t = np.array([0,60.5,92,121,152.5,184])     # Rubidium 85 (2) (MHz)
@@ -95,11 +118,56 @@ def interval_percent_difference(interval):
     for i in range(0, 5):
         R4 = (abs(interval[i]-(Rb85[i+1]-Rb85[i]))/(Rb85[i+1]-Rb85[i]))*100
         Rb85_pint.append(R4)
+    return Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint
 
-def error_val(raw_coords,df,q):
+def lowest_perc_diff(Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc,Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint):
+    '''
+    Input transition percent difference and interval percent difference from known values. 
+    Outputs the transition. Outputs value to input into error_val function, whether to 
+    output the error signal value shifted for trap transition or not.
+    '''
+    Rb87t = (Rb87t_perc)+(Rb87t_pint)
+    Rb87p = (Rb87p_perc)+(Rb87p_pint)
+    Rb85t = (Rb85t_perc)+(Rb85t_pint)
+    Rb85 = (Rb85_perc)+(Rb85_pint)
+    transition = 0
+    if (Rb87t<Rb87p) and (Rb87t<Rb85t) and (Rb87t<Rb85):
+        print("Rb87 Trap Transition")
+        transition = 1
+        return transition
+    elif (Rb87p<Rb87t) and (Rb87p<Rb85t) and (Rb87p<Rb85):
+        print("Rb87 Pump Transition")
+        transition = 2
+        return transition
+    elif (Rb85t<Rb87t) and (Rb85t<Rb87p) and (Rb85t<Rb85):
+        print("Rb85(2) Transition")
+        transition = 3
+        return transition
+    elif (Rb85<Rb87t) and (Rb85<Rb87p) and (Rb85<Rb85t):
+        print("Rb85(2) Transition")
+        transition = 4
+        return transition
+    else:
+        print('Lowest percent difference amongst input data was not calculated correctly')
+
+        
+def error_val(transition,raw_coords,df,q):
+    '''
+    Input what transition we are investigating:
+        1 - Rb87 Trap Transition
+        2 - Rb87 Pump Transition
+        3 - Rb85 (2)
+        4 - Rb85 (2)
+        if trap transition, outputs the error signal value shifted left by ~10MHz voltage conversion, from fabry perot.
+    '''
     #q is 10MHz conversion for trap transition, in units of voltage.
-    error = df.at[raw_coords[0][0],'Error']
-    error_trap = df.at[raw_coords[0][0],'Error'] - q  # q from fabry perot conversion function
+    if transition == 1:
+        print("Trap Transition")
+        error = df.at[raw_coords[0],'Error'] - q  # q from fabry perot conversion function
+    else:
+        error = df.at[raw_coords[0],'Error']
+    return error
+    
 
 def percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc):
     # Percentage Heat Map (difference from transition)
@@ -111,7 +179,9 @@ def percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc):
          'Rb85 (4)': Rb85_perc
         }, index = index)
     print(percentile_list)
-    sns.heatmap(percentile_list, cmap = 'ocean', annot = True)
+    ax = plt.axes()
+    sns.heatmap(percentile_list, cmap = 'ocean', annot = True, ax = ax)
+    ax.set_title('Peaks')    
     plt.show()
 
 def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
@@ -124,12 +194,14 @@ def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
          'Rb85 (4)': Rb85_pint
         }, index = index)
     print(percentile_list2)
-    sns.heatmap(percentile_list2, cmap = 'ocean', annot = True)
+    ax = plt.axes()
+    sns.heatmap(percentile_list2, cmap = 'ocean', annot = True, ax = ax)
+    ax.set_title('Intervals')
     plt.show()
 
 
 
-#############
+
 '''Alternative Functions. Combines aspects of previous functions into one.'''
 '''
 def percent_difference(raw_coords,conv,df): ### Need to add dataframe for EACH run, INTO the function
