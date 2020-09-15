@@ -68,7 +68,7 @@ def error_filter(signal):
 
 
 def shift(peaks):
-    """ Shifts peaks be set value """
+    """ Shifts peaks by set value """
     for i in range(len(peaks)):
         peaks[i] = peaks[i] - 6
     return peaks

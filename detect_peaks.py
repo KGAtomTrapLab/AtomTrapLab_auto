@@ -5,10 +5,16 @@ import heatmaps_function
 Import functions from peak_detection.py and heatmaps_function.py
 INPUT:
     CSV Text file of data (columns must correspond)
-        --> Must include:
+        --> Must include(IN ORDER):
+            "Saturated Absorption", "NA", "Error", "NaN", "Voltage"
             (1) Saturated Absorption
-            (2) Error
-            (3) Fabry Perot
+            (2) Fabry Perot
+            (3) Error
+            (4) NaN (Fabry Perot)
+            (5) Voltage
+            Note-- Fabry Perot is input in the line:
+                conv, q = heatmaps_function.fabry_perot_conversions(df["NA"],df)
+            
 '''
 
 df = peak_detection.import_data("D0046rb87 peak 7292011 scan 2.txt")
@@ -19,7 +25,7 @@ filtered = peak_detection.butterworth_filter(df["Saturated Absorption"])
 peaks, properties = peak_detection.find_saturated_abs_peaks(filtered)
 # Finds the peaks in the saturated absorbtion data, returns an array of peak locations
 peaks = peak_detection.shift(peaks)
-# Shifts peaks be set value
+# Shifts peaks by set value
 possible_combos = peak_detection.generate_all_attempts(peaks)
 # Generates all 5 inorder peak combinations form a set of input peaks
 
