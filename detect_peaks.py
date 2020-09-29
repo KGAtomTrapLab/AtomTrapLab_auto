@@ -17,7 +17,7 @@ INPUT:
             
 '''
 
-df = peak_detection.import_data("D0046rb87 peak 7292011 scan 2.txt")
+df = peak_detection.import_data("testScan.txt")
 # Imports the data from a CSV text file  and returns it as a dataframe
 
 filtered = peak_detection.butterworth_filter(df["Saturated Absorption"])
@@ -45,19 +45,25 @@ conv, q = heatmaps_function.fabry_perot_conversions(df["NA"],df)
 # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
 
 for peakset in possible_combos:
-	peak_freq = heatmaps_function.raw_to_frequency_coords(peakset,conv,df)
+    peak_freq = heatmaps_function.raw_to_frequency_coords(peakset,conv,df)
     # Convert raw coordinates to corresponding voltage values in dataframe. Outputs voltage of each peak, from raw input.
-	peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc = heatmaps_function.frequency_percent_difference(peak_freq)
+    peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc = heatmaps_function.frequency_percent_difference(peak_freq)
     # Ouputs frequency data percent difference corresponding to the known values of the respective peaks. With first peak at zero.
-	interval = heatmaps_function.frequency_intervals(peak_freq) 	# interval_col also stored
+    interval = heatmaps_function.frequency_intervals(peak_freq) 	# interval_col also stored
     # Outputs the frequency interval between peaks.
-	Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint = heatmaps_function.interval_percent_difference(interval)
+    Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint = heatmaps_function.interval_percent_difference(interval)
     # Outputs the data intervals between peaks percent difference with respect to the known data values.
-	transition = heatmaps_function.lowest_perc_diff(Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc,Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint)
+    transition = heatmaps_function.lowest_perc_diff(Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc,Rb87t_pint, Rb87p_pint, Rb85t_pint, Rb85_pint)
     # Outputs the transition.
-	heatmaps_function.percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc)
+    heatmaps_function.percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc)
     # Percentage Heat Map (difference from transition)
-	heatmaps_function.percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint)
+    heatmaps_function.percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint)
     # Interval Percentage Heat Map
-	error_value = heatmaps_function.error_val(transition,peaks,df,q)
-	print("Error: ",error_value)
+    error_value = heatmaps_function.error_val(transition,peaks,df,q)
+    error_idx = peak_detection.get_thumb(peakset)
+    print("Error: ",error_value)
+    print("Error_Index: ",error_idx)
+    
+    
+    
+    
