@@ -17,7 +17,8 @@ INPUT:
             
 '''
 
-df = peak_detection.import_data("testScan.txt")
+#df = peak_detection.import_data("testScan.txt")
+df = peak_detection.import_data("D0046rb87 peak 7292011 scan 2.txt")
 # Imports the data from a CSV text file  and returns it as a dataframe
 
 filtered = peak_detection.butterworth_filter(df["Saturated Absorption"])
@@ -61,7 +62,7 @@ for peakset in possible_combos:
     # Interval Percentage Heat Map
     error_value = heatmaps_function.error_val(transition,peaks,df,q)
     error_idx = peak_detection.get_thumb(peakset)
-    print("Error: ",error_value)
+    print("Error: ",error_value, "V")
     print("Error_Index: ",error_idx)
     
     
