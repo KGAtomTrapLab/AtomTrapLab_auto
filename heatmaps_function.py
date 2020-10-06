@@ -163,9 +163,9 @@ def error_val(transition,raw_coords,df,q):
     #q is 10MHz conversion for trap transition, in units of voltage.
     if transition == 1:
         print("Trap Transition")
-        error = df.at[raw_coords[0],'Error'] - q  # q from fabry perot conversion function
+        error = df.at[raw_coords[-1],'Error'] - q  # q from fabry perot conversion function
     else:
-        error = df.at[raw_coords[0],'Error']
+        error = df.at[raw_coords[-1],'Error']
     return error
     
 
