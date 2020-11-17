@@ -10,15 +10,15 @@ INPUT:
             (1) Saturated Absorption
             (2) Fabry Perot
             (3) Error
-            (4) NaN (Fabry Perot)
+            (4) NaN (Fabry Perot?)
             (5) Voltage
             Note-- Fabry Perot is input in the line:
-                conv, q = heatmaps_function.fabry_perot_conversions(df["NA"],df)
+                conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
             
 '''
 
 #df = peak_detection.import_data("testScan.txt")
-df = peak_detection.import_data("D0046rb87 peak 7292011 scan 2.txt")
+df = peak_detection.import_data("testScan_Test32_comb.txt")
 # Imports the data from a CSV text file  and returns it as a dataframe
 
 filtered = peak_detection.butterworth_filter(df["Saturated Absorption"])
@@ -41,7 +41,9 @@ plt.plot(df["Saturated Absorption"])
 plt.plot(peaks, df["Saturated Absorption"][peaks], "x")
 plt.show()
 
-conv, q = heatmaps_function.fabry_perot_conversions(df["NA"],df)
+conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
+plt.plot(df["Fabry Perot"])
+plt.show()
 # Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
 # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
 

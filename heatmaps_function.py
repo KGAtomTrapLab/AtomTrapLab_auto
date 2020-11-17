@@ -10,12 +10,17 @@ def fabry_perot_conversions(fp_data,df):
     Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
     Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
     '''
-    peaks = find_peaks_cwt(fp_data, np.arange(100,120))
+    peaks = find_peaks_cwt(fp_data, np.arange(100,150))
     fp_peaks =[]
     for i in peaks:
         j = df.at[i,"Voltage"]
         fp_peaks.append(j)
-    difference = fp_peaks[1] - fp_peaks[0]
+    cnt = 0
+    diff = 0
+    for g in range(0,len(fp_peaks)-1):
+        cnt = cnt + 1
+        diff = fp_peaks[g+1] - fp_peaks[g] + diff
+    difference = diff/cnt
     conv = 300/difference   # 300MHz FSR, (MHz/V)
     q = (difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
     return conv, q
