@@ -13,7 +13,7 @@ def import_data(data):
     """ Imports the data from a CSV text file  and returns it as a dataframe """
     try:
         df = pd.read_csv(data, header=None, sep="\t")
-        df.columns = ["Saturated Absorption", "NA", "Error", "NaN", "Voltage"]
+        df.columns = ["Saturated Absorption", "Fabry Perot", "Error", "NaN", "Voltage"]
         for i in range(3):
             df["Saturated Absorption"][i] = 0
         logging.debug(f"This is the input data frame {df.head()}")
