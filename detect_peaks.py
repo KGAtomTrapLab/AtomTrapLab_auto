@@ -35,14 +35,21 @@ error = peak_detection.error_filter(df["Error"])
 error_peaks, error_properties = peak_detection.find_error_peaks(error)
 # Find how many transitions in an error signal
 
+plt.grid()
 plt.plot(error)
 plt.plot(error_peaks, error[error_peaks], "o")
 plt.plot(df["Saturated Absorption"])
 plt.plot(peaks, df["Saturated Absorption"][peaks], "x")
+plt.xlabel("Count")
+plt.ylabel("Voltage")
 plt.show()
 
-conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
+fp_peaks, conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
+plt.grid()
 plt.plot(df["Fabry Perot"])
+plt.plot(fp_peaks, df["Fabry Perot"][fp_peaks], "x")
+plt.xlabel("Count")
+plt.ylabel("Voltage")
 plt.show()
 # Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
 # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.

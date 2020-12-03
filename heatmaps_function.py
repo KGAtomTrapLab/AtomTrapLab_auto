@@ -4,26 +4,49 @@ from matplotlib.widgets import Cursor
 import pandas as pd
 import seaborn as sns
 from scipy.signal import find_peaks_cwt
+from scipy.signal import find_peaks
+import math
 
 def fabry_perot_conversions(fp_data,df):
     '''
     Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
     Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
     '''
-    peaks = find_peaks_cwt(fp_data, np.arange(100,150))
-    fp_peaks =[]
-    for i in peaks:
-        j = df.at[i,"Voltage"]
-        fp_peaks.append(j)
+    # Add a method to only use FP data when in range of smooth data in scan.
+    # df['fp_data'] = np.log(fp_data)
+    #peaks = find_peaks_cwt(df['fp_data'], np.arange(9,10))
+    peak_indices = find_peaks(fp_data)[0]
+    peaks = np.array(list(zip(peak_indices, fp_data[peak_indices]))) #(index, value)
+    threshold = 0.2 * max(fp_data[peak_indices])
+    filtered_peaks = [(index, value) for index, value in peaks if value > threshold]
+
+    # If you just want the indices:
+    filtered_peak_indices = [index for index, value in peaks if value > threshold]
+
+    # Or just want the values
+    filtered_peak_values = [value for index, value in peaks if value > threshold]
+
+    print('peak indices')
+    print(peak_indices)
+    print('peaks')
+    print(peaks)
+    print('filtered peaks')
+    print(filtered_peaks)
+    print('filtered peak indices')
+    print(filtered_peak_indices)
+    # fp_peaks =[]
+    # for i in filtered_peak_indices:
+    #     j = df.at[i,"Voltage"]
+    #     fp_peaks.append(j)
     cnt = 0
     diff = 0
-    for g in range(0,len(fp_peaks)-1):
+    for g in range(0,len(filtered_peak_values)-1):
         cnt = cnt + 1
-        diff = fp_peaks[g+1] - fp_peaks[g] + diff
+        diff = filtered_peak_values[g+1] - filtered_peak_values[g] + diff
     difference = diff/cnt
     conv = 300/difference   # 300MHz FSR, (MHz/V)
     q = (difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
-    return conv, q
+    return filtered_peak_indices, conv, q
 
 def raw_to_frequency_coords(raw_coords,conv,df):
     '''
