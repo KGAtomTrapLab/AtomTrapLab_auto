@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 import peak_detection
 import heatmaps_function
+import numpy as np
 '''
 Import functions from peak_detection.py and heatmaps_function.py
 INPUT:
@@ -35,22 +36,10 @@ error = peak_detection.error_filter(df["Error"])
 error_peaks, error_properties = peak_detection.find_error_peaks(error)
 # Find how many transitions in an error signal
 
-plt.grid()
-plt.plot(error)
-plt.plot(error_peaks, error[error_peaks], "o")
-plt.plot(df["Saturated Absorption"])
-plt.plot(peaks, df["Saturated Absorption"][peaks], "x")
-plt.xlabel("Count")
-plt.ylabel("Voltage")
-plt.show()
+
 
 fp_peaks, conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
-plt.grid()
-plt.plot(df["Fabry Perot"])
-plt.plot(fp_peaks, df["Fabry Perot"][fp_peaks], "x")
-plt.xlabel("Count")
-plt.ylabel("Voltage")
-plt.show()
+
 # Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
 # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
 
@@ -69,11 +58,45 @@ for peakset in possible_combos:
     # Percentage Heat Map (difference from transition)
     heatmaps_function.percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint)
     # Interval Percentage Heat Map
-    error_value = heatmaps_function.error_val(transition,peaks,df,q)
     error_idx = peak_detection.get_thumb(peakset)
+    error_value = df["Voltage"][error_idx]
     print("Error: ",error_value, "V")
     print("Error_Index: ",error_idx)
     
-    
-    
-    
+
+
+# plt.plot(error)
+# plt.plot(df["Saturated Absorption"], 'g')
+#plt.plot(error_peaks, error[error_peaks], "o")
+# plt.plot(peaks, df["Saturated Absorption"][peaks], "rx")
+#plt.plot(fp_peaks, df["Fabry Perot"][fp_peaks], "rx")
+
+#%% Plots
+df.plot(x = "Voltage", y = "Saturated Absorption", legend=False, color = "g")
+plt.plot(df["Voltage"],error)
+#plt.plot(df["Voltage"][error_peaks], error[error_peaks], "o")
+plt.plot(df["Voltage"][333], error[333], "ro")
+#plt.plot(df["Voltage"][error_idx], error_value, "ro")
+plt.plot(df["Voltage"][peaks], df["Saturated Absorption"][peaks], "rx")
+#plt.plot(df["Fabry Perot"][fp_peaks], "rx")
+plt.title("Trap Transition")
+plt.xlabel("Voltage [V]")
+plt.ylabel("Signal Voltage [V]")
+plt.legend(["Saturated Absorption", "Error Signal"])
+plt.grid()
+plt.hlines(0,-10,-.4,"r")
+plt.xlim(-10, -.4)
+plt.xticks(np.arange(-10, -.4, step=1))
+plt.show() 
+
+df.plot(x = "Voltage", y = "Fabry Perot", legend=False)
+plt.plot(df["Voltage"][fp_peaks], df["Fabry Perot"][fp_peaks], "rx")
+#plt.plot(df["Fabry Perot"][fp_peaks], "rx")
+plt.title("Fabry Perot")
+plt.xlabel("Voltage [V]")
+plt.ylabel("Signal Voltage [V]")
+plt.grid()
+plt.xlim(-10, -.4)
+plt.xticks(np.arange(-10, -.4, step=1))
+plt.show()  
+
