@@ -65,13 +65,16 @@ for peakset in possible_combos:
     
 
 
+
+
+#%% Plots
+
 # plt.plot(error)
 # plt.plot(df["Saturated Absorption"], 'g')
 #plt.plot(error_peaks, error[error_peaks], "o")
 # plt.plot(peaks, df["Saturated Absorption"][peaks], "rx")
 #plt.plot(fp_peaks, df["Fabry Perot"][fp_peaks], "rx")
 
-#%% Plots
 df.plot(x = "Voltage", y = "Saturated Absorption", legend=False, color = "g")
 plt.plot(df["Voltage"],error)
 #plt.plot(df["Voltage"][error_peaks], error[error_peaks], "o")
