@@ -7,35 +7,55 @@ from scipy.signal import find_peaks_cwt
 from scipy.signal import find_peaks
 import math
 
-def fabry_perot_conversions(fp_data,df):
+def fabry_perot_conversions(fp_data,df,possible_combos):
     '''
     Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
     Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
+    possible_combos (arg) -> possible combination of peaks from the detected peaks in saturated absorption data.
+    fp_peaks (output) - filtered peak indices of values within desired range.
     '''
-    # Add a method to only use FP data when in range of saturated absorption data in scan.
-    # df['fp_data'] = np.log(fp_data)
-    #peaks = find_peaks_cwt(df['fp_data'], np.arange(9,10))
+    
+    # Extend the range
+    extended_range_factor = .20 
+    
+    conversions = []
+    converted_trap= []
+    
     peak_indices = find_peaks(fp_data)[0]
     peaks = np.array(list(zip(peak_indices, fp_data[peak_indices]))) #(index, value)
     threshold = 0.2 * max(fp_data[peak_indices])
-    filtered_peaks = [(index, value) for index, value in peaks if value > threshold and index < 480]
+    filtered_peaks = [(index, value) for index, value in peaks if value > threshold and index < 800]
 
     # If you just want the indices:
-    filtered_peak_indices = [index for index, value in peaks if value > threshold and index < 480]
-
+    filtered_peak_indices = [index for index, value in peaks if value > threshold and index < 800]
     # Or just want the values
-    filtered_peak_values = [value for index, value in peaks if value > threshold and index < 480]
+    filtered_peak_values = [value for index, value in peaks if value > threshold and index < 800]
+    
+    for n in possible_combos:
+        fp_range = (n[-1]-n[0])
+        fp_start = n[0] - fp_range*(extended_range_factor)
+        fp_end = n[-1] + fp_range*(extended_range_factor)
+        # while fp_data is greater than or equal to fp_starting_point and <= fp_ending_point, convert peak_indices
+        peaks_in_range = []
+        diffs = []
+        fp_peaks = []
+        for i in (filtered_peak_indices):
+            if (i >= fp_start) and (i <= fp_end):
+                voltage = df["Voltage"][i] #convert indices to voltage (x-axis on fabry perot)
+                peaks_in_range.append(voltage)
+                fp_peaks.append(i)
+        for j in range(len(peaks_in_range)-1):
+            difference = peaks_in_range[j+1]- peaks_in_range[j]
+            diffs.append(difference)
+        average_difference = sum(diffs)/len(diffs)
+        conv = 300/average_difference   # 300MHz FSR, (MHz/V)
+        q = (average_difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
+        conversions.append(conv)
+        converted_trap.append(q)
+        
+    return fp_peaks, conversions, converted_trap      
+        
 
-    print(filtered_peak_indices)
-    cnt = 0
-    diff = 0
-    for g in range(0,len(filtered_peak_indices)-1):
-        cnt = cnt + 1
-        diff = df["Voltage"][filtered_peak_indices[g+1]] - df["Voltage"][filtered_peak_indices[g]] + diff
-    difference = diff/cnt
-    conv = 300/difference   # 300MHz FSR, (MHz/V)
-    q = (difference/300)*10   # 10MHz conversion for trap transition, unit: Voltage
-    return filtered_peak_indices, conv, q
 
 def raw_to_frequency_coords(raw_coords,conv,df):
     '''
