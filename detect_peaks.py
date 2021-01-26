@@ -19,7 +19,7 @@ INPUT:
 '''
 
 #df = peak_detection.import_data("testScan.txt")
-df = peak_detection.import_data("testScan_Test32_comb.txt")
+df = peak_detection.import_data("Scans/testScan_Test32_comb.txt")
 # Imports the data from a CSV text file  and returns it as a dataframe
 
 filtered = peak_detection.butterworth_filter(df["Saturated Absorption"])
