@@ -38,13 +38,15 @@ error_peaks, error_properties = peak_detection.find_error_peaks(error)
 
 
 
-fp_peaks, conv, q = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"],df)
+fp_peaks, conversions, converted_trap = heatmaps_function.fabry_perot_conversions(df["Fabry Perot"], df, possible_combos)
+print("CONVERSIONS")
+print(conversions)
 
 # Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
 # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
-
-for peakset in possible_combos:
-    peak_freq = heatmaps_function.raw_to_frequency_coords(peakset,conv,df)
+for i in range(len(possible_combos)):
+    print("Element in possible peak list: %.0f"%i)
+    peak_freq = heatmaps_function.raw_to_frequency_coords(possible_combos[i],conversions[i],df)
     # Convert raw coordinates to corresponding voltage values in dataframe. Outputs voltage of each peak, from raw input.
     peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc = heatmaps_function.frequency_percent_difference(peak_freq)
     # Ouputs frequency data percent difference corresponding to the known values of the respective peaks. With first peak at zero.
@@ -58,7 +60,7 @@ for peakset in possible_combos:
     # Percentage Heat Map (difference from transition)
     heatmaps_function.percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint)
     # Interval Percentage Heat Map
-    error_idx = peak_detection.get_thumb(peakset)
+    error_idx = peak_detection.get_thumb(possible_combos[i])
     error_value = df["Voltage"][error_idx]
     print("Error: ",error_value, "V")
     print("Error_Index: ",error_idx)
