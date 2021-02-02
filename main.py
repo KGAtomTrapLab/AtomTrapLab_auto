@@ -1,13 +1,26 @@
 import main_bottleneck
 
+def get_file():
+    
+    while True:
+        filename = ""
+        try:
+            filename = input("enter a filename: ")
+            filename = "scans/" + filename
+            open(filename)
+            break
+        except FileNotFoundError:
+            print("File not found")
+        
+    return filename
+    
+    
+
 def main():
     
-    filename = input("enter a filename: ")
-    
-    filename = "scans/" + filename
+    filename = get_file()
     
     main_bottleneck.bottleneck(filename)
     
-
 main()
 
