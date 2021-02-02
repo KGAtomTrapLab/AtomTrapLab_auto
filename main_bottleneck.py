@@ -1,4 +1,6 @@
 import main_functions
+from matplotlib import pyplot as plt
+import numpy as np
 '''
 Import functions from peak_detection.py and heatmaps_function.py
 INPUT:
@@ -41,7 +43,8 @@ def bottleneck(text_file):
     # Takes fabry perot input data, finds free spectral range and converts the fsr from voltage to MHz/V. 
     # Ouputs MHz per voltage conversion factor as well as the 10MHz conversion for trap transition tuning.
     for i in range(len(possible_combos)):
-        print("Element in possible peak list: %.0f"%(i+1))
+        print("")
+        print("Element %.0f in List of Possible Peaks"%(i+1))
         peak_freq = main_functions.raw_to_frequency_coords(possible_combos[i],conversions[i],df)
         # Convert raw coordinates to corresponding voltage values in dataframe. Outputs voltage of each peak, from raw input.
         peak_freq, Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc = main_functions.frequency_percent_difference(peak_freq)
@@ -58,8 +61,32 @@ def bottleneck(text_file):
         # Interval Percentage Heat Map
         error_idx = main_functions.get_thumb(possible_combos[i])
         error_value = df["Voltage"][error_idx]
-        print("Error: ",error_value, "V")
-        print("Error_Index: ",error_idx)
+        print("Error Adjustment: ",error_value, "V")
+        df.plot(x = "Voltage", y = "Saturated Absorption", legend=False, color = "g")
+        plt.plot(df["Voltage"],error)
+        plt.plot(df["Voltage"][error_idx], error[error_idx], "ro")
+        plt.plot(df["Voltage"][peaks], df["Saturated Absorption"][peaks], "rx")
+        plt.title("Trap Transition")
+        plt.xlabel("Voltage [V]")
+        plt.ylabel("Signal Voltage [V]")
+        plt.legend(["Saturated Absorption", "Error Signal"])
+        plt.grid()
+        plt.hlines(0,-10,10,"r")
+        plt.xticks(np.arange(-10, 10, step=1))
+        plt.xlim(-10, 9)
+        plt.show() 
+        
+        df.plot(x = "Voltage", y = "Fabry Perot", legend=False)
+        plt.plot(df["Voltage"][fp_peaks], df["Fabry Perot"][fp_peaks], "rx")
+        #plt.plot(df["Fabry Perot"][fp_peaks], "rx")
+        plt.title("Fabry Perot")
+        plt.xlabel("Voltage [V]")
+        plt.ylabel("Signal Voltage [V]")
+        plt.grid()
+        plt.xticks(np.arange(-10, 10, step=1))
+        plt.xlim(-10, 9)
+        plt.show()  
+
     
     
     

@@ -239,19 +239,19 @@ def lowest_perc_diff(Rb87t_perc, Rb87p_perc, Rb85t_perc, Rb85_perc,Rb87t_pint, R
     Rb85 = (Rb85_perc)+(Rb85_pint)
     transition = 0
     if (Rb87t<Rb87p) and (Rb87t<Rb85t) and (Rb87t<Rb85):
-        print("Rb87 Trap Transition")
+        print("Transition: Rb87 Trap Transition")
         transition = 1
         return transition
     elif (Rb87p<Rb87t) and (Rb87p<Rb85t) and (Rb87p<Rb85):
-        print("Rb87 Pump Transition")
+        print("Transition: Rb87 Pump Transition")
         transition = 2
         return transition
     elif (Rb85t<Rb87t) and (Rb85t<Rb87p) and (Rb85t<Rb85):
-        print("Rb85(2) Transition")
+        print("Transition: Rb85(2) Transition")
         transition = 3
         return transition
     elif (Rb85<Rb87t) and (Rb85<Rb87p) and (Rb85<Rb85t):
-        print("Rb85(2) Transition")
+        print("Transition: Rb85(2) Transition")
         transition = 4
         return transition
     else:
@@ -285,7 +285,6 @@ def percent_diff_heatmap(Rb87t_perc,Rb87p_perc,Rb85t_perc,Rb85_perc):
          'Rb85 (2)': Rb85t_perc,
          'Rb85 (4)': Rb85_perc
         }, index = index)
-    print(percentile_list)
     ax = plt.axes()
     sns.heatmap(percentile_list, cmap = 'ocean', annot = True, ax = ax)
     ax.set_title('Peaks')    
@@ -301,7 +300,6 @@ def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
          'Rb85 (2)': Rb85t_pint,
          'Rb85 (4)': Rb85_pint
         }, index = index)
-    print(percentile_list2)
     ax = plt.axes()
     sns.heatmap(percentile_list2, cmap = 'ocean', annot = True, ax = ax)
     ax.set_title('Intervals')
