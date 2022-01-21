@@ -6,7 +6,7 @@ def get_file():
         filename = ""
         try:
             filename = input("enter a filename: ")
-            filename = "scans/" + filename
+            filename = "Scans/" + filename
             open(filename)
             break
         except FileNotFoundError:
