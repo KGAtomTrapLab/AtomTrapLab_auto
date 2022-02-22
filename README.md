@@ -17,9 +17,7 @@ This is a **work in progress.**
 
 ## Resources
 
-Some of these are included in the `resources` folder.
-
-### [Arroyo TEC Controller](https://www.arroyoinstruments.com/product/6305-combosource-500ma/)
+### [Arroyo Laser Controller](https://www.arroyoinstruments.com/product/6305-combosource-500ma/)
 
 - [Datasheet](resources/arroyo/Datasheet-[6300-Series].pdf)
 
