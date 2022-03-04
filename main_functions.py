@@ -11,7 +11,6 @@ from scipy.signal import find_peaks
 import math
 import logging
 
-logging.basicConfig(filename="example.log", level=logging.DEBUG)
 
 
 def import_data(data):
@@ -304,11 +303,6 @@ def percent_int_heatmap(Rb87t_pint,Rb87p_pint,Rb85t_pint,Rb85_pint):
     sns.heatmap(percentile_list2, cmap = 'ocean', annot = True, ax = ax)
     ax.set_title('Intervals')
     plt.show()
-
-
-    
-
-
 
 if __name__ == "__main__":
     df = import_data("testScan2.txt")
