@@ -14,7 +14,13 @@ Thor Labs - https://www.thorlabs.com/drawings/397dc885232742e1-F6330647-EED9-BB3
 
 ## Current Files
 
- -  main.py                 *Main file to call, launches text prompt to try and scan a file (enter filename)*
- -  main_bottleneck.py      *Contains main logic flow, conversions, and relevent plots*
- -  main_functions.py       *Contains helper functions*
- -  Scans                   *Folder for containing scan files*
+ -  **main.py**                 
+     Main file to call, launches text prompt to try and scan a file (enter filename)
+ -  **main_bottleneck.py**      
+     Contains main logic flow, conversions, and relevent plots
+ -  **main_functions.py**       
+     Contains helper functions
+ -  **Scans**                   
+     Folder for containing scan files
+ 
+ 
