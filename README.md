@@ -19,9 +19,9 @@ This is a **work in progress.**
 
 ### [Arroyo Laser Controller](https://www.arroyoinstruments.com/product/6305-combosource-500ma/)
 
-- [Datasheet](resources/arroyo/Datasheet-[6300-Series].pdf)
+- [Datasheet](resources/arroyo/TEC_Datasheet-[6300-Series].pdf)
 
-- [User Manual](resources/arroyo/User_Manual-[6300-Series].pdf)
+- [User Manual](resources/arroyo/TEC_User_Manual-[6300-Series].pdf)
 
 - [Computer Interfacing Manual](resources/arroyo/Computer_Interfacing_Manual.pdf)
 
