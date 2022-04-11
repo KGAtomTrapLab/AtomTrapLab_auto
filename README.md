@@ -1,8 +1,8 @@
 # AtomTrapLab
 
-This repository contains resources and source code for Dr. Katarina Gillen's
+This repository contains resources and source code for Dr. Katharina Gillen's
 cold atom trapping laboratory. This includes scripts for data collection and
-visualization of the the saturated absorption spectroscopy as well as automation
+visualization of the saturated absorption spectroscopy as well as automation
 of the laser spectrum using a feedback controller.
 
 This is a **work in progress.**
