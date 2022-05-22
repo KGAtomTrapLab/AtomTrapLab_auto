@@ -8,3 +8,4 @@ __pycache__
 # ignore miscellaneous OS files
 .DS_Store
 .vscode
+.idea
