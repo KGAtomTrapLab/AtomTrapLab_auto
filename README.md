@@ -1,7 +1,10 @@
 # AtomTrapLab_auto
 Automation project for Dr.Gillen's lab. Automate feedback error correction.
 
-# TODO Sub-Projects:
+*This project repo contained initial functionality for early lab automation attempts. The main features attempted included Rb peak detecting. This will need to be updated / reworked to configure with both our new voltage / frequency scan's range, as well as our new lab elecronics and software.*
+
+
+# TODO Sub-Pr ojects:
 - [ ] Find minimums of SA plot
 - [ ] Connect python blocks
 - [ ] Find threashold current
